@@ -8,23 +8,19 @@ import sys
 class ChainCodeImage(object):
     neighbor_transform = numpy.array(
             [
-                [-1, -1], [0, -1], [1, -1],
-                [-1,  0],          [1,  0],
-                [ 1, -1], [0,  1], [1,  1],
+                [-1, -1],[-1,  0] ,[ -1, 1],
+                [0, -1],          [0,  1],
+                 [1, -1],[1,  0] , [1,  1],
             ])
 
-    chaincode_dirs = numpy.array([
-            [3,2,1],
-            [4,-1,0],
-            [5,6,7]])
     chaincode_lookup = {
-            0: (1,  0),
-            1: (1, -1),
-            2: (0, -1),
+            0: (0,  1),
+            1: (-1, 1),
+            2: (-1, 0),
             3: (-1, -1),
-            4: (-1, 0),
+            4: (0, -1),
             5: (1, -1),
-            6: (0,  1),
+            6: (1,  0),
             7: (1,  1),
             }
 
@@ -77,6 +73,7 @@ class ChainCodeImage(object):
         found_white = False
         for code in lookup:
             check_pos = self.from_chain_code(pos,code)
+            print_state(self.image, pos, check_pos, code)
             if not self.image[check_pos[0]][check_pos[1]]:
                 found_white = True
             elif not found_white:
@@ -111,6 +108,25 @@ class ChainCodeImage(object):
     def generate_chaincode(self):
         starting = self.find_edge()
         self._generate_chaincod_points(starting)
+
+def print_state(image, current_pos, lookat_pos, chaincode):
+    row = 0
+    print '\n\n','='*80, '\n\n'
+    it = numpy.nditer(image, flags=['multi_index'])
+    for x in it:
+        if it.multi_index[0] != row:
+            print '\n',
+            row +=1
+        oc = '1'
+        if not x:
+            oc = '0'
+        if (current_pos == it.multi_index).all():
+            oc = 'X'
+        # ugly
+        if (lookat_pos == it.multi_index).all():
+            oc = str(chaincode)
+        print oc,
+
 
 if __name__ == "__main__":
     image1 = numpy.array([
