@@ -8,6 +8,7 @@ import sys
 class ChainCodeImage(object):
     # For some reason, I have to define this column major.  I don't know why
     #TODO figure out why
+    # check memory representation vs display order by printing out a gradent.
     neighbor_transform = numpy.array(
             [
                 [-1, -1],[-1,  0] ,[ -1, 1],
@@ -42,16 +43,23 @@ class ChainCodeImage(object):
         bin_image = image < 255
         return bin_image
 
-    def _is_inner_edge(self, pos):
+    def _get_neighbors(self, pos):
+        shape = self.image.shape
         neighbors = self.neighbor_transform + pos
+        to_delete = []
+        for i, neighbor in enumerate(neighbors):
+            if (neighbor < 0).any() or (neighbor >= shape).any():
+                to_delete.extend([i])
+        to_delete.reverse()
+        for i in to_delete:
+            neighbors = numpy.delete(neighbors, i, 0)
+        return neighbors
+
+    def _is_inner_edge(self, pos):
+        neighbors = self._get_neighbors(pos)
+        neighbors_values = numpy.array([self.image[neighbor[0]][neighbor[1]] for neighbor  in neighbors])
         value = self.image[pos[0]][pos[1]]
-        if not value:
-            return False
-        for neighbor in neighbors:
-            if (neighbor < 0).any():
-                pass
-            if not self.image[neighbor[0]][neighbor[1]]:
-                return True
+        return value and not neighbors_values.all()
 
     def find_edge(self):
         it = numpy.nditer(self.image, flags=['multi_index'])
@@ -61,11 +69,12 @@ class ChainCodeImage(object):
             it.iternext()
         sys.exit(1, "No Image edge")
 
-    def _numpy_in(self, x, data):
-        for y in data:
-            if (x == y).all():
-                return True
-        return False
+#    def _numpy_in(self, x, data):
+#        # silly kludge to compare against None in data
+#        for y in data:
+#            if (x == y).all():
+#                return True
+#        return False
 
     def find_next_edge(self, pos, previous_code):
         """
@@ -73,13 +82,13 @@ class ChainCodeImage(object):
         previous_code: how to get to the previous pixel
         """
         start_code = (previous_code -1) % 8
-        lookup = [x % 8 for x in xrange(start_code + 8, start_code, -1)]
+        lookup = numpy.arange(start_code + 8, start_code, -1) % 8
         found_white = False
         for code in lookup:
             check_pos = self.from_chain_code(pos,code)
-            print_state(self.image, pos, check_pos, code)
             if not self.image[check_pos[0]][check_pos[1]]:
                 found_white = True
+                continue
             elif not found_white:
                 continue
             else:
@@ -89,7 +98,7 @@ class ChainCodeImage(object):
                     continue
         raise Exception("Can't find new edge point")
 
-    def _generate_chaincod_points(self, pos):
+    def _generate_chaincode_points(self, pos):
         pos = numpy.array(pos)
         current_pos = pos
         self.start_pos = pos
@@ -111,7 +120,8 @@ class ChainCodeImage(object):
 
     def generate_chaincode(self):
         starting = self.find_edge()
-        self._generate_chaincod_points(starting)
+        self._generate_chaincode_points(starting)
+        return self.chaincode
 
 def print_state(image, current_pos, lookat_pos, chaincode):
     row = 0
@@ -133,24 +143,6 @@ def print_state(image, current_pos, lookat_pos, chaincode):
 
 
 if __name__ == "__main__":
-    image1 = numpy.array([
-            [255,255,255,255,255,255,255,255,255,],
-            [255,255,255,255,0,255,255,255,255,],
-            [255,255,255,0,0,0,255,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,255,0,0,0,255,255,255,],
-            [255,255,255,255,0,255,255,255,255,],
-            [255,255,255,255,255,255,255,255,255,],
-            ])
-    image2 = numpy.array([
-            [255,255,255,255,255,255,255,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,255,255,255,255,255,255,255,],
-            ])
 
     chaincode_image1 = ChainCodeImage(image1)
     chaincode_image2 = ChainCodeImage(image1)
