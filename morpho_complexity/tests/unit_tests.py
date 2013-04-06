@@ -4,24 +4,29 @@ import numpy as np
 
 
 class ChainCodeTests(TestCase):
-    image1 = np.array([
-            [255,255,255,255,255,255,255,255,255,],
-            [255,255,255,255,0,255,255,255,255,],
-            [255,255,255,0,0,0,255,255,255,],
-            [255,0,0,0,0,0,0,255,255,],
-            [255,255,255,0,0,0,255,255,255,],
-            [255,255,255,255,0,255,255,255,255,],
-            [255,255,255,255,255,255,255,255,255,],
-            ])
-    image2 = np.array([
-            [255,255,255,255,255,255,255,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,0,0,0,0,0,255,255,],
-            [255,255,255,255,255,255,255,255,255,],
-            ])
+
+    def test_small_square(self):
+        horz = np.array([
+            [255,255,255,255],
+            [255,0,0,255],
+            [255,0,0,255],
+            [255,255,255,255],
+        ])
+        horz_cci = chaincode.ChainCodeImage(horz)
+        chaincode_result = horz_cci.generate_chaincode()
+        self.assertEquals([0,6,4], chaincode_result)
+
+    def test_big_square(self):
+        horz = np.array([
+            [255,255,255,255,255],
+            [255,0,0,0,255],
+            [255,0,0,0,255],
+            [255,0,0,0,255],
+            [255,255,255,255,255],
+        ])
+        horz_cci = chaincode.ChainCodeImage(horz)
+        chaincode_result = horz_cci.generate_chaincode()
+        self.assertEquals([0,0,6,6,4,4,2], chaincode_result)
 
     def test_horizontal(self):
         horz = np.array([
