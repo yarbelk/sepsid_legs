@@ -81,11 +81,12 @@ class ChainCodeImage(object):
         pos: coords of current pixel
         previous_code: how to get to the previous pixel
         """
-        start_code = (previous_code -1) % 8
-        lookup = numpy.arange(start_code + 8, start_code, -1) % 8
+        start_code = (previous_code - 4) % 8
+        lookup = numpy.arange(start_code, start_code - 9, -1) % 8
         found_white = False
         for code in lookup:
             check_pos = self.from_chain_code(pos,code)
+            #print_state(self.image, pos, check_pos, code)
             if not self.image[check_pos[0]][check_pos[1]]:
                 found_white = True
                 continue
@@ -103,15 +104,15 @@ class ChainCodeImage(object):
         current_pos = pos
         self.start_pos = pos
         self.chaincode_points = [pos]
-        previous_code = 1  # tricky hack to get the start chaincode search
+        previous_code = 0  # tricky hack to get the start chaincode search
         while True:
             new_chaincode, next_pos = self.find_next_edge(current_pos,
-                                                        previous_code + 4)
-            print new_chaincode, next_pos
-            print self.chaincode_points, self.chaincode
+                                                        previous_code)
+            previous_code = new_chaincode
+            #print new_chaincode, next_pos
+            #print self.chaincode_points, self.chaincode
             sys.stdout.flush()
             if (next_pos == self.start_pos).all():
-                self.chaincode.extend([new_chaincode])
                 break
             self.chaincode_points.extend([next_pos])
             self.chaincode.extend([new_chaincode])
@@ -138,14 +139,5 @@ def print_state(image, current_pos, lookat_pos, chaincode):
             oc = 'X'
         # ugly
         if (lookat_pos == it.multi_index).all():
-            oc = str(chaincode + 1)
+            oc = str('*')
         print oc,
-
-
-if __name__ == "__main__":
-
-    chaincode_image1 = ChainCodeImage(image1)
-    chaincode_image2 = ChainCodeImage(image1)
-
-    print chaincode_image1.generate_chaincode()
-    print chaincode_image1.generate_chaincode()
