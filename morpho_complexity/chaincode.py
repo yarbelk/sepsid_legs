@@ -6,6 +6,8 @@ import sys
 
 
 class ChainCodeImage(object):
+    # For some reason, I have to define this column major.  I don't know why
+    #TODO figure out why
     neighbor_transform = numpy.array(
             [
                 [-1, -1],[-1,  0] ,[ -1, 1],
@@ -13,6 +15,8 @@ class ChainCodeImage(object):
                  [1, -1],[1,  0] , [1,  1],
             ])
 
+    # For some reason, I have to define this column major.  I don't know why
+    #TODO figure out why
     chaincode_lookup = {
             0: (0,  1),
             1: (-1, 1),
@@ -124,7 +128,7 @@ def print_state(image, current_pos, lookat_pos, chaincode):
             oc = 'X'
         # ugly
         if (lookat_pos == it.multi_index).all():
-            oc = str(chaincode)
+            oc = str(chaincode + 1)
         print oc,
 
 
