@@ -1,8 +1,10 @@
+import argparse
 import numpy as np
 import scipy
 from scipy import ndimage, misc
 import sys
 from PIL import Image
+
 
 SIZE = 50000
 
@@ -56,15 +58,42 @@ def main(image, threshold):
 
 
 if __name__ == '__main__':
-    from matplotlib import pyplot as plt
-    from matplotlib import cm
-    image_name = sys.argv[1]
-    output_image_name = sys.argv[2]
-    img = Image.open(image_name)
-    image = misc.fromimage(img, flatten=1)
+    import os
+    import sys
 
-    new_image = main(image, 128)
-    plt.imshow(new_image, cmap=cm.binary_r, interpolation='nearest')
-    plt.show()
-    #cropped_image = crop_image(new_image)
-    misc.imsave(output_image_name, new_image)
+    arg_parser = argparse.ArgumentParser(prog="image_sizes",
+            description="resize images to 50,000 pixels in area")
+    arg_parser.add_argument('-i',dest='input',
+            required=True,
+            help="where are the images")
+    arg_parser.add_argument('-o',dest='output',
+            required=True,
+            help="where to save")
+
+    args = arg_parser.parse_args(sys.argv[1:])
+
+    the_dir = args.input
+    try:
+        os.path.isdir(the_dir)
+    except:
+        print "give me a real dir please"
+        sys.exit(1)
+
+    try:
+        os.path.isdir(args.output)
+    except:
+        print "give me a real output dir please"
+        sys.exit(1)
+
+    tmp = [os.path.join(the_dir, image_file) for image_file in os.listdir(the_dir)]
+    for filename in tmp:
+        if '.tif' in filename:
+            output_file = os.path.splitext(filename)[0] + "_resized.tif"
+            print "input: {}".format(filename)
+            print "output: {}".format(output_file)
+
+            img = Image.open(filename)
+            image = misc.fromimage(img, flatten=1)
+
+            new_image = main(image, 128)
+            misc.imsave(output_file, new_image)
