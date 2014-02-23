@@ -56,22 +56,23 @@ def XY(x, y):
     return map(lambda a, b: (a, b), x, y)
 
 
-def main():
-    A = map(lambda x: x[0], input_fft)
-    B = map(lambda x: x[1], input_fft)
-    C = map(lambda x: x[2], input_fft)
-    D = map(lambda x: x[3], input_fft)
-
-    T = 100.0
-    dt = 0.1
+def main(coeficents, T=1000.0, dt=0.1):
+    A = map(lambda x: x[0], coeficents)
+    B = map(lambda x: x[1], coeficents)
+    C = map(lambda x: x[2], coeficents)
+    D = map(lambda x: x[3], coeficents)
 
     X_vals = X(A, B, T, dt)
     Y_vals = Y(C, D, T, dt)
 
-    from pprint import pprint
     xy_vals = XY(X_vals, Y_vals)
-    pprint(xy_vals)
+    return xy_vals
 
 
 if __name__ == "__main__":
-    main()
+    comp_in = map(lambda x: (x[0] + j*x[1], x[2] + j*x[3]), input_fft)
+    coef = np.fft.ifft2(comp_in)
+    coef_out = map(lambda x: (x[0].real + x[1], x[2] + j*x[3]), input_fft)
+
+    from pprint import pprint
+    pprint(main(coef))
