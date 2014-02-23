@@ -18,7 +18,11 @@ def crop_image(image):
     """
     Crop all extra whitespace.
     """
-    raise NotImplemented()
+    idx = np.where(image == 0)
+    box = map(min, idx)[::-1] + map(max, idx)[::-1]
+    tmp = Image.fromarray(image, 'L')
+    region = tmp.crop(box)
+    return region
 
 
 def resize_image(image):
@@ -62,4 +66,5 @@ if __name__ == '__main__':
     new_image = main(image, 128)
     plt.imshow(new_image, cmap=cm.binary_r, interpolation='nearest')
     plt.show()
+    #cropped_image = crop_image(new_image)
     misc.imsave(output_image_name, new_image)
