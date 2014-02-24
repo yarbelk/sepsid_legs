@@ -1,4 +1,3 @@
-import argparse
 import numpy as np
 import scipy
 from scipy import ndimage, misc
@@ -60,6 +59,7 @@ def main(image, threshold):
 if __name__ == '__main__':
     import os
     import sys
+    import argparse
 
     arg_parser = argparse.ArgumentParser(prog="image_sizes",
             description="resize images to 50,000 pixels in area")
