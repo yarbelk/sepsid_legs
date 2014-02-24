@@ -87,13 +87,13 @@ if __name__ == '__main__':
 
     tmp = [os.path.join(the_dir, image_file) for image_file in os.listdir(the_dir)]
     for filename in tmp:
-        if '.tif' in filename:
+        if '.tif' in filename.lower():
             output_file = os.path.splitext(filename)[0] + "_resized.tif"
             print "input: {}".format(filename)
-            print "output: {}".format(output_file)
 
             img = Image.open(filename)
             image = misc.fromimage(img, flatten=1)
 
             new_image = main(image, 128)
             misc.imsave(output_file, new_image)
+            print "output: {}".format(output_file)
