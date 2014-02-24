@@ -2,6 +2,8 @@
 
 import argparse
 from morpho_complexity import resize
+from PIL import Image
+from scipy import misc
 
 if __name__ == '__main__':
     import os
